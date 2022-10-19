@@ -4,10 +4,15 @@
 
 package edu.neu.coe.info6205.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+
+import edu.neu.coe.info6205.sort.elementary.InsertionSort;
 
 import static edu.neu.coe.info6205.util.Utilities.formatWhole;
 
@@ -125,4 +130,82 @@ public class Benchmark_Timer<T> implements Benchmark<T> {
     private final Consumer<T> fPost;
 
     final static LazyLogger logger = new LazyLogger(Benchmark_Timer.class);
+    
+    
+    public static void main(String[] args) {
+        Random random = new Random();
+        InsertionSort insSort = new InsertionSort();
+
+        for (int n = 100; n < 30000; n = n * 2) {
+        	
+            //Random Integer Array
+            ArrayList<Integer> randomList = new ArrayList<>();
+            for (int i = 0; i < n; i++)	
+            {
+            	randomList.add(random.nextInt(n));
+            }
+
+            //Ordered Integer Array
+            ArrayList<Integer> orderedList = new ArrayList<>();
+            for (int i = 0; i < n; i++)
+            {
+            	orderedList.add(i + 1);
+            }
+            
+          //Partially Ordered Integer Array
+            List<Integer> partialList = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                if (i > n / 2) {
+                	partialList.add(random.nextInt(n));
+                } else {
+                	partialList.add(i);
+                }
+            }
+
+            //Reverse Integer Array
+            ArrayList<Integer> reverseList = new ArrayList<>();
+            for (int i = 0; i < n; i++)
+            {
+                reverseList.add(n - i);
+            }
+            
+
+            Integer[] randomArr = randomList.toArray(new Integer[0]);
+            Integer[] orderedArr = orderedList.toArray(new Integer[0]);
+            Integer[] partialArr = partialList.toArray(new Integer[0]);
+            Integer[] reverseArr = reverseList.toArray(new Integer[0]);
+            
+            System.out.println("No of Elements in the array : "+ n +"\n");
+            
+            Benchmark<Boolean> bmRandom = new Benchmark_Timer<>(
+                    "Random Sort", b -> {
+                insSort.sort(randomArr.clone(), 0, randomArr.length);
+            });
+            double randomArraySortTime = bmRandom.run(true, 10);
+
+            Benchmark<Boolean> bmOrdered = new Benchmark_Timer<>(
+                    "Ordered Sort", b -> {
+                insSort.sort(orderedArr.clone(), 0, orderedArr.length);
+            });
+            double orderedArraySortTime = bmOrdered.run(true, 10);
+            
+            Benchmark<Boolean> bmPartial = new Benchmark_Timer<>(
+                    "Partial Sort", b -> {
+                insSort.sort(partialArr.clone(), 0, partialArr.length);
+            });
+            double partialArraySortTime = bmPartial.run(true, 10);
+
+            Benchmark<Boolean> bmReverse = new Benchmark_Timer<>(
+                    "Reverse Sort", b -> {
+                insSort.sort(reverseArr.clone(), 0, reverseArr.length);
+            });
+            double reversedArraySortTime = bmReverse.run(true, 10);
+
+            System.out.println("\nSorting Random Array " + randomArraySortTime); 
+            System.out.println("Sorting Ordered Array " + orderedArraySortTime);
+            System.out.println("Sorting Partial Array " + partialArraySortTime);
+            System.out.println("Sorting Reverse Array "+ reversedArraySortTime +"\n");
+            
+        }
+    }
 }
