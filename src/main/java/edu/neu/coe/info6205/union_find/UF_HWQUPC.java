@@ -8,6 +8,8 @@
 package edu.neu.coe.info6205.union_find;
 
 import java.util.Arrays;
+import java.util.Random;
+import java.util.Scanner;
 
 /**
  * Height-weighted Quick Union with Path Compression
@@ -82,6 +84,14 @@ public class UF_HWQUPC implements UF {
         validate(p);
         int root = p;
         // FIXME
+        
+        while(root != parent[root]){
+            if(pathCompression){
+                doPathCompression(root);
+            }
+            root = parent[root];
+        }
+        
         // END 
         return root;
     }
@@ -170,6 +180,19 @@ public class UF_HWQUPC implements UF {
 
     private void mergeComponents(int i, int j) {
         // FIXME make shorter root point to taller one
+	    	int a = find(i);
+	        int b = find(j);
+	        if(a == b){
+	            return;
+	        }
+	        if(height[a] < height[b]){
+	        	updateParent(a, b);
+	            updateHeight(b, a);
+	        } 
+	        else{
+	            updateParent(b, a);
+	            updateHeight(a, b);
+	        }
         // END 
     }
 
@@ -178,6 +201,49 @@ public class UF_HWQUPC implements UF {
      */
     private void doPathCompression(int i) {
         // FIXME update parent to value of grandparent
+    	parent[i] = parent[parent[i]];
         // END 
     }
+    
+    
+    public static void main(String[] args){
+        int a = 0;
+        double  b = 0;
+        int runs = 200;
+
+        for(int i = 200; i <= 10000; i = i + 200){
+            int total = 0;
+            for(int j = 0; j < runs; j++){
+                UF_HWQUPC uf = new UF_HWQUPC(i);
+                total += calculateResult(uf, i);
+            }
+            int avg = total/runs;
+            double log = Math.log(i) * i;
+            b += avg/log;
+            a++;
+            System.out.println("n: " + i + " m: " + avg);
+            System.out.println("Coefficient: " + (avg/log) + "\n");
+        }
+        System.out.println("Average Coefficient: " + (b/a));
+    }
+    
+    private static int calculateResult(UF_HWQUPC uf, int i){
+        int result = 0;
+        Random r = new Random();
+
+        while(uf.count > 1){
+            int x = r.nextInt(i);
+            int y = r.nextInt(i);
+
+            if(x == y)
+                continue;
+
+            if(!uf.connected(x , y))
+                uf.union(x, y);
+                result++;
+        }
+        
+        return result;
+    }
+
 }
